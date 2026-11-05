@@ -14,4 +14,4 @@ Decisions:
  - I had decided to use index.js for quick file referencing but scrapped it because it caused some async problems.
 
 Changes:
- - Necessary editing is required for a personal project when in linking it to a database to hold the users' information.
+ - Editing required when linking it to a database to store the users' information.
