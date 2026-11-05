@@ -1,30 +1,10 @@
-'use strict'
+const jwt = require('jsonwebtoken');
+process.env.JWT_SECRET = 'test-secret';
 
-/**
- * @params {object} user
- * @returns {string} a signed token
- */
+const signToken = (payload) => jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+const verifyToken = (token) => jwt.verify(token, process.env.JWT_SECRET); // throws if invalid/expired
+const setToken = (t) => localStorage.setItem('token', t);
+const getToken = () => localStorage.getItem('token');
+const clearToken = () => localStorage.removeItem('token');
 
-const jwt = require('jsonwebtoken')
-const {jwtSecret, jwtExpiresIn} = require('../config/env.js')
-
-function signToken(user){
-    const payload = {sub: String(user._id), role: user.role}
-    return jwt.sign(payload, jwtSecret, {expiresIn: jwtExpiresIn})
-}
-
-/**
- * @param {string} token
- * @param {{sub:string, role:string, iat:number, exp:number}}
-*/
-
-function verifyToken(token){
-    try{
-        return jwt.verify(token, jwtSecret)
-    } catch (err) {
-    //    throw apiError.unauthorized('Invalid Token')
-        console.log("Invalid Token")
-    }
-}
-
-module.exports = {signToken, verifyToken}
+module.exports = {signToken, verifyToken, setToken, getToken, clearToken}

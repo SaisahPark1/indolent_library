@@ -1,49 +1,38 @@
-'use strict'
+const {hashPassword, verifyPassword} = require('../utils/bcrypt.js')
+const { signToken } = require('../utils/jwt.js');
+const USERS_KEY = 'users';
 
-// const {sendSuccess, sendCreated} = require('../utils/apiResponse.js')
-// const apiError = require('../utils/apiError.js')
-const {signToken} = require('../utils/jwt.js')
-const User = require('../models/user.model')
-// const asyncHandler = require('../utils/asyncHandler.js')
-
-
-// const register = asyncHandler(async(req, res) => {
-const register = async(req, res) => {
-    const {name, email, password} = req.body ?? {}
-    // Destructuring so the user cannot edit like {"role": 'admin'}
-    const user = await User.create({name, email, password})
-    sendCreated(res, {user, token: signToken(user)})
-}
-
-
-// const login = asyncHandler(async(req, res)=>{
-const login = async(req, res)=>{
-    const {email, password} = req.body ?? {}
-
-    if (!email || !password){
-        // throw apiError.badRequest('email and password are required')
-        console.log("email and password required")
+function getUsers() {
+    try {
+        return JSON.parse(localStorage.getItem(USERS_KEY)) || [];
+    } catch {
+        return []; // corrupted or missing data
     }
-    const user = await User.findOne({email: String(email).toLowerCase().trim()}).select('+password')
-    // .select('+password') overrides the hashing
+}
 
-    if ((!user) || !(await user.comparePassword(password))){
-        // throw apiError.unauthorized('Invalid email or password')
-        console.log("email and password invalid")
+async function register({email, password}) {
+    const users = getUsers();
+    const normalized = String(email).toLowerCase().trim();
+    if (users.some(u => u.email === normalized)) return null;
+    const user = { email: normalized, password: await hashPassword(password), role: "user"};
+    users.push(user);
+    saveUsers(users);
+    return user;
+}
+
+function saveUsers(users) {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+async function login({ email, password }) {
+    const normalized = String(email).toLowerCase().trim();
+    const user = getUsers().find(u => u.email === normalized);
+
+    if (!user || !(await verifyPassword(password, user.password))) {
+        return null;
     }
-    // making sure that the user exists and the passwords match
 
-    // sendSuccess(res, {user, token:signToken(user)})
-    console.log("Yay you logged in")
+    return signToken({ email: user.email, role: user.role });
 }
 
-
-// const me = asyncHandler(async(req, res)=>{
-const me = async(req, res)=>{
-    /** requireAuth will already have verified so this is just for confirming a saved token is still good
-     * Also for refreshing */
-    // sendSuccess(res, req.user)
-    console.log("You are: ", req.user)
-}
-
-module.exports = {register, login, me}
+module.exports = {login, register, getUsers, saveUsers}

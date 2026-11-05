@@ -1,12 +1,5 @@
-'use strict'
-
-const express = require('express')
-// const dataRoutes = require('./data.routes')
-const authRoutes = require('./auth.routes')
-
-const router = express.Router()
-router.use('/auth', authRoutes)
-
-// router.use('/dataRoutes', dataRoutes)
-
-module.exports = router
+module.exports = {
+  ...require('./utils/bcrypt.js'),
+  ...require('./utils/jwt.js'),
+  ...require('./controllers/auth.controller.js'),
+};
