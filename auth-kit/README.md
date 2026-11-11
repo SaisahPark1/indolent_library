@@ -8,7 +8,7 @@ Usage:
  - npm run test:auth
 
 API:
- - This is an essential part of the API at Stage 2 to make sure it is known what is who's
+ - This is an essential part of the API at Stage 2 to make sure it is known who owns what.
 
 Decisions:
  - I had decided to use index.js for quick file referencing but scrapped it because it caused some async problems.

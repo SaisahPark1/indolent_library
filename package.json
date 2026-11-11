@@ -38,7 +38,8 @@
   "scripts": {
     "test:auth": "jest auth-kit",
     "test:db": "jest db-kit",
-    "test:api": "jest api-kit"
+    "test:api": "jest api-kit",
+    "test:guard": "jest guard-kit"
   },
   "repository": {
     "type": "git",

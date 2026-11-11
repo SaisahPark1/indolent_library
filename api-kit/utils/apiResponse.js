@@ -6,8 +6,8 @@
  * @param {object} [extra]     the extra is any other top level keys we want to add like {meta}
 */
 
-function sendSuccess(res, data, statusCode = 200, extra={}){
-    return res.status(statusCode).json({success: true, data, ...extra})
+function sendSuccess(res, data, statusCode = 200){
+    return res.status(statusCode).json({success: true, data})
 }
 
 // Whenever a record is created
