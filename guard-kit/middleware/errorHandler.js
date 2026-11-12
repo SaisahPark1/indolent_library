@@ -1,10 +1,14 @@
 module.exports = function errorHandler(err, req, res, next) {
     if (res.headersSent) return next(err);
 
-    const isProd = process.env.NODE_ENV === 'production'; // read per call so tests can change it
     let statusCode = err.statusCode || err.status || 500;
     let message = err.message || 'Internal Server Error';
     let details = err.details || null;
+
+    if (['JsonWebTokenError', 'TokenExpiredError'].includes(err.name)) {
+        statusCode = 401;
+        message = 'Invalid or expired token';
+    }
 
     // malformed ObjectId in a path parameter:
     if (err.name === 'CastError') {
@@ -38,7 +42,7 @@ module.exports = function errorHandler(err, req, res, next) {
     // the server's fault
     if (statusCode >= 500) {
         console.error('[error]', { message: err.message, stack: err.stack });
-        if (isProd) message = 'Internal Server Error'; // don't leak internals
+        message = 'Internal Server Error'
     }
 
     res.status(statusCode).json({
@@ -46,7 +50,7 @@ module.exports = function errorHandler(err, req, res, next) {
         error: {
         message,
         ...(details && { details }),
-        ...(statusCode >= 500 && !isProd && { stack: err.stack }),
+        ...(false),
         },
     });
 };

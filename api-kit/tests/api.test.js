@@ -1,6 +1,7 @@
 const request = require('supertest');
 const express = require('express');
 const itemsRouter = require('../controllers/api.controller.js')
+const guardKit = require("../../guard-kit/index.js")
 
 // Added to work independently from db-kit
 class MemoryRepo {
@@ -22,6 +23,7 @@ let firstId = null
 const app = express();
 app.use(express.json());
 app.use('/api/v1/items', itemsRouter(new MemoryRepo()));
+app.use(guardKit.errorHandler)
 
 test('GET / returns a list', async () => {
     const res = await request(app).get('/api/v1/items');

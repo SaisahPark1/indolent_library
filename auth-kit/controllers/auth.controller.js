@@ -1,5 +1,6 @@
 const {hashPassword, verifyPassword} = require('../utils/bcrypt.js')
 const { signToken } = require('../utils/jwt.js');
+const guardKit = require('../../guard-kit/index.js');
 const USERS_KEY = 'users';
 
 function getUsers() {
@@ -13,7 +14,7 @@ function getUsers() {
 async function register({email, password}) {
     const users = getUsers();
     const normalized = String(email).toLowerCase().trim();
-    if (users.some(u => u.email === normalized)) return null;
+    if (users.some(u => u.email === normalized)) throw guardKit.ApiError.conflicted('User already exists!')
     const user = { email: normalized, password: await hashPassword(password), role: "user"};
     users.push(user);
     saveUsers(users);
@@ -29,7 +30,7 @@ async function login({ email, password }) {
     const user = getUsers().find(u => u.email === normalized);
 
     if (!user || !(await verifyPassword(password, user.password))) {
-        return null;
+        throw guardKit.ApiError.unauthenticated('Password is wrong or User does not exist')
     }
 
     return signToken({ email: user.email, role: user.role });

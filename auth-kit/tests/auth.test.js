@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 const {login, register} = require('../index.js');
 
 test('returns a token for valid credentials', async () => {
@@ -6,14 +9,16 @@ test('returns a token for valid credentials', async () => {
     expect(typeof token).toBe('string');
 });
 
-test('returns null for an existing email', async () => {
-    expect(await register({ email: 'hello@gmail.com', password: '1234567890' })).toBeNull();
+test('returns error for an existing email', async () => {
+    await expect(
+        register({ email: 'hello@gmail.com', password: '1234567890' })
+    ).rejects.toMatchObject({ statusCode: 409 });
 });
 
-test('returns null for a wrong password', async () => {
-    expect(await login({ email: 'hello@gmail.com', password: 'nope' })).toBeNull();
+test('returns error for a wrong password', async () => {
+    await expect(login({ email: 'hello@gmail.com', password: 'nope' })).rejects.toMatchObject({ statusCode: 401 });
 });
 
-test('returns null for an unknown email', async () => {
-    expect(await login({ email: 'nobody@gmail.com', password: 'x' })).toBeNull();
+test('returns error for an unknown email', async () => {
+    await expect(login({ email: 'nobody@gmail.com', password: 'x' })).rejects.toMatchObject({ statusCode: 401 });
 });
